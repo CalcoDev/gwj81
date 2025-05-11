@@ -5,7 +5,7 @@ extends Control
 signal window_resized
 signal window_title_changed
 
-signal window_dragged
+# TODO(calco): Add signals for moved, dragged, resized etc
 
 signal window_closed
 signal window_minimized
@@ -21,6 +21,12 @@ var window_margin_bottom: float = 5.0
 
 var _mouse_over: bool = false
 var _mouse_clicked: bool = false
+var _mouse_clicked_pos: Vector2 = Vector2.ZERO
+var _resize_begin_window_rect: Rect2 = Rect2(0, 0, 0, 0)
+var _resize_begin_cursor: Input.CursorShape = Input.CURSOR_ARROW
+
+var _real_size: Vector2 = Vector2.ZERO
+var _real_position: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
     if Engine.is_editor_hint():
@@ -35,26 +41,44 @@ func _ready() -> void:
     mouse_exited.connect(_on_mouse_exited)
 
 func _input(event: InputEvent) -> void:
+    if Engine.is_editor_hint():
+        return
+
     if event is InputEventMouseButton:
         if event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
             if _mouse_over and inside_margin(get_global_mouse_position()):
                 _mouse_clicked = true
+                
+                _mouse_clicked_pos = get_global_mouse_position()
+                _resize_begin_window_rect = get_global_rect()
+                _resize_begin_cursor = _get_cursor_resize_shape(get_global_mouse_position())
+
+                # TODO(calco): Move this out of here and into a setter
+                position = position.round()
+                size = size.round()
+                _real_position = position
+                _real_size = size
+
                 get_viewport().set_input_as_handled()
         elif event.is_released() and event.button_index == MOUSE_BUTTON_LEFT:
+            _mouse_clicked = false
             if _mouse_over:
-                _mouse_clicked = false
                 get_viewport().set_input_as_handled()
     elif event is InputEventMouseMotion:
-        if _mouse_over and _mouse_clicked:
+        if _mouse_clicked:
             _handle_mouse_motion(event)
             get_viewport().set_input_as_handled()
 
 func _process(_delta: float) -> void:
-    var mouse_pos := get_global_mouse_position()
-    if _mouse_over and inside_margin(mouse_pos):
-        OSManager.cursors.main_cursor = _get_cursor_resize_shape(mouse_pos)
-    elif OSManager.cursors.main_cursor != Input.CURSOR_ARROW:
-        OSManager.cursors.main_cursor = Input.CURSOR_ARROW
+    if Engine.is_editor_hint():
+        return
+
+    if not _mouse_clicked:
+        var mouse_pos := get_global_mouse_position()
+        if _mouse_over and inside_margin(mouse_pos):
+            OSManager.cursors.main_cursor = _get_cursor_resize_shape(mouse_pos)
+        elif OSManager.cursors.main_cursor != Input.CURSOR_ARROW:
+            OSManager.cursors.main_cursor = Input.CURSOR_ARROW
 
 func set_title(title: String) -> void:
     if _title:
@@ -112,11 +136,53 @@ func _on_mouse_entered() -> void:
     _mouse_over = true
 
 func _on_mouse_exited() -> void:
-    _mouse_clicked = false
     _mouse_over = false
+
+func _get_cursor_resize_clamped_horizontal_axis_func1(start_pos: Vector2, curr_pos: Vector2, delta: Vector2) -> Vector4:
+    var ret := Vector4(delta.x, 0.0, 0.0, 0.0)
+    if start_pos.x > _resize_begin_window_rect.get_center().x:
+        if start_pos.x < global_position.x:
+            ret.x = 0
+    else:
+        ret.x *= -1
+        # print(ret.x)
+        # print("start_pos: ", start_pos.x, " glob: ", global_position.x + size.x)
+        if curr_pos.x > global_position.x + size.x - custom_minimum_size.x or ret.x < 0 and size.x == custom_minimum_size.x:
+            ret.x = 0
+        ret.z = -ret.x
+    return ret;
+
+func _get_cursor_resize_clamped_vertical_axis_func2(start_pos: Vector2, curr_pos: Vector2, delta: Vector2) -> Vector4:
+    var ret := Vector4(0.0, delta.y, 0.0, 0.0)
+    if start_pos.y > _resize_begin_window_rect.get_center().y:
+        if start_pos.y < global_position.y:
+            ret.y = 0
+    else:
+        ret.y *= -1
+        if curr_pos.y > global_position.y + size.y - custom_minimum_size.y or ret.y < 0 and size.y == custom_minimum_size.y:
+            ret.y = 0
+        ret.w = -ret.y
+    return ret;
+
+## First 2 components are the Size update, second 2 are the Position update
+func _get_cursor_resize_clamped(cursor: Input.CursorShape, start_pos: Vector2, curr_pos: Vector2, delta: Vector2) -> Vector4:
+    if cursor == Input.CURSOR_HSIZE:
+        return _get_cursor_resize_clamped_horizontal_axis_func1(start_pos, curr_pos, delta)
+    elif cursor == Input.CURSOR_VSIZE:
+        return _get_cursor_resize_clamped_vertical_axis_func2(start_pos, curr_pos, delta)
+    elif cursor == Input.CURSOR_FDIAGSIZE or cursor == Input.CURSOR_BDIAGSIZE:
+        var ret := _get_cursor_resize_clamped_horizontal_axis_func1(start_pos, curr_pos, delta)
+        ret += _get_cursor_resize_clamped_vertical_axis_func2(start_pos, curr_pos, delta)
+        return ret
+    return Vector4.ZERO
 
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
     var resize_delta = event.relative
     if resize_delta.length_squared() > 0:
-        # Resize the window using the delta
-        size += resize_delta / 2.0
+        var movement_update := _get_cursor_resize_clamped(_resize_begin_cursor, _mouse_clicked_pos, get_global_mouse_position(), resize_delta) / 2.0
+        var size_update = Vector2(movement_update.x, movement_update.y)
+        var position_update = Vector2(movement_update.z, movement_update.w)
+        _real_size += size_update
+        _real_position += position_update
+        size = _real_size.round()
+        position = _real_position.round()
