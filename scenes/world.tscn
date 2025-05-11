@@ -44,10 +44,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 0
 
-[node name="TitleBar" type="BoxContainer" parent="Window/VBoxContainer"]
+[node name="TitleBar" type="BoxContainer" parent="Window/VBoxContainer" node_paths=PackedStringArray("_close_button", "_minimize_button", "_maximize_button")]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 script = ExtResource("2_dss4m")
+_close_button = NodePath("MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer/CloseButton")
+_minimize_button = NodePath("MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer/MinimiseButton")
+_maximize_button = NodePath("MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer/MaximiseButton")
 
 [node name="MinSizeNinePatchRect" type="NinePatchRect" parent="Window/VBoxContainer/TitleBar"]
 custom_minimum_size = Vector2(40, 11)
