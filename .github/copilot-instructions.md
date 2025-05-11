@@ -4,6 +4,8 @@
 
 ## GDScript Coding Standards
 
+- ALWAYS use SPACES instead of TABS.
+- ALWAYS use 4 spaces for indentation.
 - ALWAYS use static typing (explicit type annotations).
 - ALWAYS denote private variables using an `_`
 - ALWAYS use `self.` when referencing member variables, unless they start with `_` or are static
