@@ -1,3 +1,12 @@
-[gd_scene format=3 uid="uid://bqnh1ireygix8"]
+[gd_scene load_steps=2 format=3 uid="uid://bqnh1ireygix8"]
+
+[ext_resource type="Script" uid="uid://dfrooj3hb7m34" path="res://scripts/features/os/os_window.gd" id="1_nnsk1"]
 
 [node name="World" type="Node2D"]
+
+[node name="Window" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_nnsk1")
