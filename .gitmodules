@@ -1,0 +1,3 @@
+[submodule "external/godot_docs"]
+	path = external/godot_docs
+	url = https://github.com/calcodev/godotdocsforkthingy.git
