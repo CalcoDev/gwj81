@@ -1,25 +1,39 @@
-[gd_scene load_steps=10 format=3 uid="uid://bqnh1ireygix8"]
+[gd_scene load_steps=17 format=3 uid="uid://bqnh1ireygix8"]
 
 [ext_resource type="Script" uid="uid://dfrooj3hb7m34" path="res://scripts/features/os/os_window.gd" id="1_nnsk1"]
 [ext_resource type="Texture2D" uid="uid://cv7kwa2fqxl3o" path="res://assets/art/os/window/window_titlebar_nineslice.png" id="2_4wyf3"]
+[ext_resource type="Script" uid="uid://bytmvgmhtqsxc" path="res://scripts/features/os/os_window_titlebar.gd" id="2_dss4m"]
 [ext_resource type="Script" uid="uid://4h5gm0b4bj4" path="res://scripts/ui/min_size_nine_patch_rect.gd" id="3_k0juu"]
 [ext_resource type="FontFile" uid="uid://0kx6jajl2oao" path="res://resources/fonts/04B_03__.TTF" id="4_7r4gi"]
 [ext_resource type="Script" uid="uid://clrdahjn6vh3a" path="res://scripts/features/os/os_window_title.gd" id="5_w7kh3"]
 [ext_resource type="Texture2D" uid="uid://bc0mps148afqo" path="res://assets/art/os/window/buttons/maximise_button.png" id="6_e3hyu"]
+[ext_resource type="Texture2D" uid="uid://cdnm7kxok6ckx" path="res://assets/art/os/window/buttons/maximise_button_clicked.png" id="7_e3hyu"]
 [ext_resource type="Texture2D" uid="uid://bb3e5umr0aj4i" path="res://assets/art/os/window/buttons/minimise_button.png" id="7_q5onr"]
 [ext_resource type="Texture2D" uid="uid://blsqjfqeiquyw" path="res://assets/art/os/window/buttons/close_button.png" id="8_jhx03"]
+[ext_resource type="Texture2D" uid="uid://dygob2215trl7" path="res://assets/art/os/window/buttons/maximise_button_hovered.png" id="8_q5onr"]
 [ext_resource type="Texture2D" uid="uid://clff2hwg1r5q" path="res://assets/art/os/window/window_content_nineslice.png" id="9_o8fc1"]
+[ext_resource type="Texture2D" uid="uid://wlcpdpnq7jvd" path="res://assets/art/os/window/buttons/minimise_button_hovered.png" id="10_jhx03"]
+[ext_resource type="Texture2D" uid="uid://dku6gicdo44t5" path="res://assets/art/os/window/buttons/minimise_button_clicked.png" id="10_xo05s"]
+[ext_resource type="Texture2D" uid="uid://cfrb52i65vqk1" path="res://assets/art/os/window/buttons/close_button_hovered.png" id="12_o8fc1"]
+[ext_resource type="Texture2D" uid="uid://xuj3qior4amj" path="res://assets/art/os/window/buttons/close_button_clicked.png" id="13_dss4m"]
 
 [node name="World" type="Node2D"]
 
-[node name="Window" type="Control" parent="." node_paths=PackedStringArray("_title")]
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(137, 70)
+zoom = Vector2(2, 2)
+
+[node name="Window" type="Control" parent="." node_paths=PackedStringArray("_title", "_title_bar")]
 custom_minimum_size = Vector2(44, 28)
 layout_mode = 3
 anchors_preset = 0
-offset_right = 145.0
-offset_bottom = 58.0
+offset_left = 52.0
+offset_top = 30.0
+offset_right = 212.0
+offset_bottom = 95.0
 script = ExtResource("1_nnsk1")
 _title = NodePath("VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer/Title")
+_title_bar = NodePath("VBoxContainer/TitleBar")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Window"]
 layout_mode = 1
@@ -32,6 +46,8 @@ theme_override_constants/separation = 0
 
 [node name="TitleBar" type="BoxContainer" parent="Window/VBoxContainer"]
 layout_mode = 2
+mouse_default_cursor_shape = 2
+script = ExtResource("2_dss4m")
 
 [node name="MinSizeNinePatchRect" type="NinePatchRect" parent="Window/VBoxContainer/TitleBar"]
 custom_minimum_size = Vector2(40, 11)
@@ -64,19 +80,25 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.780392, 0.811765, 0.8, 1)
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_offset_x = 0
+theme_override_constants/shadow_outline_size = 0
 theme_override_fonts/normal_font = ExtResource("4_7r4gi")
 theme_override_font_sizes/normal_font_size = 8
-text = "Window Title"
+text = "A very long window title"
 scroll_active = false
 autowrap_mode = 0
 vertical_alignment = 1
 script = ExtResource("5_w7kh3")
-display_text = "Window Title"
+display_text = "A very long window title"
 
 [node name="Control" type="Control" parent="Window/VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer"]
 custom_minimum_size = Vector2(6, 0)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Window/VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer"]
 layout_mode = 2
@@ -86,14 +108,20 @@ theme_override_constants/separation = 0
 [node name="MaximiseButton" type="TextureButton" parent="Window/VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer"]
 layout_mode = 2
 texture_normal = ExtResource("6_e3hyu")
+texture_pressed = ExtResource("7_e3hyu")
+texture_hover = ExtResource("8_q5onr")
 
 [node name="MinimiseButton" type="TextureButton" parent="Window/VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer"]
 layout_mode = 2
 texture_normal = ExtResource("7_q5onr")
+texture_pressed = ExtResource("10_xo05s")
+texture_hover = ExtResource("10_jhx03")
 
 [node name="CloseButton" type="TextureButton" parent="Window/VBoxContainer/TitleBar/MinSizeNinePatchRect/MarginContainer/HBoxContainer/HBoxContainer"]
 layout_mode = 2
 texture_normal = ExtResource("8_jhx03")
+texture_pressed = ExtResource("13_dss4m")
+texture_hover = ExtResource("12_o8fc1")
 
 [node name="BoxContainer" type="BoxContainer" parent="Window/VBoxContainer"]
 layout_mode = 2

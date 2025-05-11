@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cg6f47prrhrfe"]
+
+[ext_resource type="Script" uid="uid://dansnwb41dkqk" path="res://scripts/features/os/autoloads/os_manager.gd" id="1_una4v"]
+[ext_resource type="Script" uid="uid://xs10a8h7ghtu" path="res://scripts/features/os/os_cursors.gd" id="2_pgacd"]
+
+[node name="OSManager" type="Node" node_paths=PackedStringArray("cursors")]
+script = ExtResource("1_una4v")
+cursors = NodePath("Cursors")
+
+[node name="Cursors" type="Node" parent="."]
+script = ExtResource("2_pgacd")

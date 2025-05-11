@@ -2,11 +2,14 @@
 class_name OSWindowTitle
 extends RichTextLabel
 
+signal title_changed
+
 # have to export so it remains saved
 @export var display_text: String = "A very long title that will be truncated":
     set(value):
         display_text = value
         _original_text = value
+        title_changed.emit()
         check_size()
 
 var _original_text: String = ""
@@ -42,7 +45,7 @@ func check_size() -> void:
     if available_width < text_width:
         var ellipsis_count = int((available_width - ellipsis_width) / (text_width / _original_text.length()))
         if ellipsis_count > 0:
-            var ellipsis_text = _original_text.substr(0, ellipsis_count) + _ellipsis_text
+            var ellipsis_text = _original_text.substr(0, ellipsis_count).strip_edges() + _ellipsis_text
             text = ellipsis_text
         else:
             text = _ellipsis_text
